@@ -236,3 +236,65 @@ export interface TopCourse {
     enrollments: number;
   };
 }
+
+export interface StudentDashboardStats {
+  enrolledCourses: number;
+  completed: number;
+  inProgress: number;
+  certificates: number;
+  averageProgress: number;
+}
+
+export interface StudentCourse {
+  id: string;
+  courseId: string;
+  title: string;
+  instructor: {
+    firstName: string;
+    lastName: string;
+  } | null;
+  progress: number;
+  totalLessons: number;
+  completedLessons: number;
+  lastAccessed: string;
+  status: "ACTIVE" | "COMPLETED" | "DROPPED";
+  enrolledAt: string;
+}
+
+export interface RecommendedCourse {
+  id: string;
+  title: string;
+  instructor: {
+    firstName: string;
+    lastName: string;
+  } | null;
+  duration: number;
+  level: string;
+  studentsCount: number;
+  rating: number;
+}
+
+export interface StudentCertificate {
+  id: string;
+  courseTitle: string;
+  issueDate: string;
+}
+
+export interface WeeklyActivityDay {
+  day: string;
+  minutes: number;
+}
+
+export interface WeeklyActivity {
+  current: number;
+  longest: number;
+  thisWeek: WeeklyActivityDay[];
+}
+
+export interface StudentDashboard {
+  stats: StudentDashboardStats;
+  myCourses: StudentCourse[];
+  recommendedCourses: RecommendedCourse[];
+  certificates: StudentCertificate[];
+  weeklyActivity?: WeeklyActivity;
+}

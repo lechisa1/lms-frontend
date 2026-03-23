@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
@@ -42,7 +42,7 @@ export default function StudentCertificatesPage() {
     try {
       setDownloading(certificateId);
       const blob = await api.downloadCertificate(certificateId);
-      
+
       // Create a download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -54,7 +54,7 @@ export default function StudentCertificatesPage() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Failed to download certificate:", err);
-      alert("Failed to download certificate. Please try again.");
+      // alert("Failed to download certificate. Please try again.");
     } finally {
       setDownloading(null);
     }
@@ -102,7 +102,17 @@ export default function StudentCertificatesPage() {
                   {/* Certificate Header */}
                   <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-6 text-white">
                     <div className="flex items-center justify-between mb-4">
-                      <Award className="w-10 h-10" />
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/lms.png"
+                          alt="LMS Logo"
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                        />
+                        <span className="text-sm font-semibold">LMS</span>
+                      </div>
+
                       {certificate.isValid ? (
                         <span className="flex items-center gap-1 text-xs font-medium bg-white/20 px-2 py-1 rounded-full">
                           <CheckCircle className="w-3 h-3" />
@@ -114,7 +124,10 @@ export default function StudentCertificatesPage() {
                         </span>
                       )}
                     </div>
-                    <h3 className="text-lg font-bold">Certificate of Completion</h3>
+
+                    <h3 className="text-lg font-bold">
+                      Certificate of Completion
+                    </h3>
                   </div>
 
                   {/* Certificate Content */}
@@ -142,7 +155,9 @@ export default function StudentCertificatesPage() {
                     {/* Download Button */}
                     <button
                       onClick={() => handleDownload(certificate.id)}
-                      disabled={downloading === certificate.id || !certificate.isValid}
+                      disabled={
+                        downloading === certificate.id || !certificate.isValid
+                      }
                       className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {downloading === certificate.id ? (
@@ -150,7 +165,9 @@ export default function StudentCertificatesPage() {
                       ) : (
                         <Download className="w-4 h-4" />
                       )}
-                      {certificate.isValid ? "Download PDF" : "Certificate Invalid"}
+                      {certificate.isValid
+                        ? "Download PDF"
+                        : "Certificate Invalid"}
                     </button>
                   </div>
                 </div>
@@ -194,7 +211,10 @@ export default function StudentCertificatesPage() {
                   <div>
                     <p className="text-sm text-slate-500">Total Downloads</p>
                     <p className="text-2xl font-bold text-slate-900">
-                      {certificates.reduce((sum, c) => sum + c.downloadCount, 0)}
+                      {certificates.reduce(
+                        (sum, c) => sum + c.downloadCount,
+                        0,
+                      )}
                     </p>
                   </div>
                 </div>

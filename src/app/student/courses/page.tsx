@@ -118,7 +118,7 @@ export default function MyCoursesPage() {
           subtitle="Continue learning and track your progress"
         />
 
-        <div className="p-6">
+        <div className="p-6 text-black">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">

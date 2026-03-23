@@ -16,6 +16,7 @@ import {
   Resource,
   RecentEnrollment,
   TopCourse,
+  StudentDashboard,
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -166,10 +167,43 @@ class ApiService {
   }
 
   async getProfile(): Promise<User> {
-    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
       headers: this.getHeaders(),
     });
     return this.handleResponse<User>(response);
+  }
+
+  async updateProfile(data: {
+    firstName?: string;
+    lastName?: string;
+    bio?: string;
+  }): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      method: "PATCH",
+      headers: this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse<User>(response);
+  }
+
+  async changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<void> {
+    const response = await fetch(
+      `${API_BASE_URL}/users/profile/change-password`,
+      {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify(data),
+      },
+    );
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: "Failed to change password" }));
+      throw new Error(error.message || "Failed to change password");
+    }
   }
 
   async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
@@ -471,6 +505,14 @@ class ApiService {
     }
   }
 
+  // Roles endpoints
+  async getRoles(): Promise<{ id: number; name: string }[]> {
+    const response = await fetch(`${API_BASE_URL}/roles`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<{ id: number; name: string }[]>(response);
+  }
+
   // Categories endpoints
   async getCategories(): Promise<Category[]> {
     const response = await fetch(`${API_BASE_URL}/categories`, {
@@ -719,6 +761,23 @@ class ApiService {
     return this.handleResponse<User>(response);
   }
 
+  async createUser(data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    roleId: number;
+    bio?: string;
+    isActive?: boolean;
+  }): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse<User>(response);
+  }
+
   async deleteUser(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: "DELETE",
@@ -771,6 +830,14 @@ class ApiService {
       },
     );
     return this.handleResponse<TopCourse[]>(response);
+  }
+
+  // Student dashboard
+  async getStudentDashboard(): Promise<StudentDashboard> {
+    const response = await fetch(`${API_BASE_URL}/dashboard/student`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<StudentDashboard>(response);
   }
 }
 

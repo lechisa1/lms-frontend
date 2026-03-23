@@ -276,7 +276,7 @@ export default function NewCoursePage() {
                         setCourseForm({ ...courseForm, title: e.target.value })
                       }
                       placeholder="e.g., Introduction to Web Development"
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                       required
                     />
                   </div>
@@ -295,7 +295,7 @@ export default function NewCoursePage() {
                       }
                       rows={4}
                       placeholder="Describe what students will learn..."
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                       required
                     />
                   </div>
@@ -313,7 +313,7 @@ export default function NewCoursePage() {
                             categoryId: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                         required
                       >
                         <option value="">Select a category</option>
@@ -340,7 +340,7 @@ export default function NewCoursePage() {
                         }
                         min={0}
                         step={0.01}
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                       />
                     </div>
                   </div>
@@ -360,7 +360,7 @@ export default function NewCoursePage() {
                           })
                         }
                         min={0}
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                       />
                     </div>
 
@@ -466,7 +466,7 @@ export default function NewCoursePage() {
                               updateLesson(lessonIndex, "title", e.target.value)
                             }
                             placeholder="Lesson title"
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                             required
                           />
                         </div>
@@ -485,7 +485,7 @@ export default function NewCoursePage() {
                               )
                             }
                             min={1}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                           />
                         </div>
                       </div>
@@ -505,7 +505,7 @@ export default function NewCoursePage() {
                             )
                           }
                           placeholder="Brief description"
-                          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                           required
                         />
                       </div>
@@ -526,7 +526,7 @@ export default function NewCoursePage() {
                               )
                             }
                             min={0}
-                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                           />
                         </div>
                         <div className="flex items-center gap-2 pt-6">
@@ -563,7 +563,7 @@ export default function NewCoursePage() {
                           }
                           rows={4}
                           placeholder="Lesson content..."
-                          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                         />
                       </div>
 
@@ -602,7 +602,7 @@ export default function NewCoursePage() {
                                     )
                                   }
                                   placeholder="Resource title"
-                                  className="flex-1 px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  className="flex-1 px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                                 />
                                 <select
                                   value={resource.type}
@@ -614,7 +614,7 @@ export default function NewCoursePage() {
                                       e.target.value,
                                     )
                                   }
-                                  className="px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  className="px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                                 >
                                   <option value="PDF">PDF</option>
                                   <option value="VIDEO">Video</option>
@@ -634,7 +634,7 @@ export default function NewCoursePage() {
                                     )
                                   }
                                   placeholder="URL"
-                                  className="flex-1 px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  className="flex-1 px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                                 />
                                 <button
                                   onClick={() =>
@@ -687,28 +687,44 @@ export default function NewCoursePage() {
                   <div className="space-y-2 text-sm">
                     <p>
                       <span className="text-slate-500">Title:</span>{" "}
-                      {courseForm.title}
+                      <span className="text-slate-900 font-medium">
+                        {courseForm.title}
+                      </span>
                     </p>
                     <p>
                       <span className="text-slate-500">Description:</span>{" "}
-                      {courseForm.description}
+                      <span className="text-slate-900">
+                        {courseForm.description}
+                      </span>
                     </p>
+
                     <p>
                       <span className="text-slate-500">Category:</span>{" "}
-                      {categories.find((c) => c.id === courseForm.categoryId)
-                        ?.name || "-"}
+                      <span className="text-slate-900">
+                        {categories.find((c) => c.id === courseForm.categoryId)
+                          ?.name || "-"}
+                      </span>
                     </p>
+
                     <p>
-                      <span className="text-slate-500">Price:</span> $
-                      {courseForm.price.toFixed(2)}
+                      <span className="text-slate-500">Price:</span>{" "}
+                      <span className="text-slate-900 font-medium">
+                        ${courseForm.price.toFixed(2)}
+                      </span>
                     </p>
+
                     <p>
                       <span className="text-slate-500">Duration:</span>{" "}
-                      {courseForm.duration} hours
+                      <span className="text-slate-900">
+                        {courseForm.duration} hours
+                      </span>
                     </p>
+
                     <p>
                       <span className="text-slate-500">Status:</span>{" "}
-                      {courseForm.isPublished ? "Published" : "Draft"}
+                      <span className="text-slate-900 font-medium">
+                        {courseForm.isPublished ? "Published" : "Draft"}
+                      </span>
                     </p>
                   </div>
                 </div>

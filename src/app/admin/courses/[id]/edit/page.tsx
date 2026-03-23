@@ -155,7 +155,7 @@ export default function EditCoursePage() {
                     onChange={(e) =>
                       setCourseForm({ ...courseForm, title: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                     required
                   />
                 </div>
@@ -173,7 +173,7 @@ export default function EditCoursePage() {
                       })
                     }
                     rows={4}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                     required
                   />
                 </div>
@@ -191,7 +191,7 @@ export default function EditCoursePage() {
                           categoryId: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                       required
                     >
                       <option value="">Select a category</option>
@@ -218,7 +218,7 @@ export default function EditCoursePage() {
                       }
                       min={0}
                       step={0.01}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                     />
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function EditCoursePage() {
                         })
                       }
                       min={0}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-black"
                     />
                   </div>
 

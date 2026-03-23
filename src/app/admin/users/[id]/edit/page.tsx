@@ -214,7 +214,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                           onChange={(e) =>
                             handleChange("firstName", e.target.value)
                           }
-                          className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-black"
                           required
                         />
                       </div>
@@ -235,7 +235,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                           onChange={(e) =>
                             handleChange("lastName", e.target.value)
                           }
-                          className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-black"
                           required
                         />
                       </div>
@@ -257,7 +257,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                         type="email"
                         value={formData.email}
                         onChange={(e) => handleChange("email", e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent text-black"
                         required
                       />
                     </div>
@@ -277,7 +277,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
                         id="role"
                         value={formData.role}
                         onChange={(e) => handleChange("role", e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent appearance-none bg-white text-black"
                         required
                       >
                         <option value="">Select a role</option>
