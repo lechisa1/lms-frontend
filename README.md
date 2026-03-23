@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 Learning Management System (LMS) - Frontend
 
-## Getting Started
+This is the frontend application for the Learning Management System (LMS), built using Next.js. It provides an interactive and responsive user interface for students, instructors, and administrators to manage and access learning resources.
 
-First, run the development server:
+## 🚀 Overview
+
+The frontend is responsible for delivering a seamless user experience by interacting with the backend API. It enables users to browse courses, enroll, track progress, and manage learning activities efficiently.
+
+## 🛠️ Technologies Used
+
+- Next.js
+- React.js
+- JavaScript / TypeScript
+- Tailwind CSS / Bootstrap
+- Axios / Fetch API
+
+## ✨ Key Features
+
+- 👤 User authentication and authorization
+- 📚 Course browsing and enrollment
+- 🎥 Lesson and content viewing
+- 📊 Progress tracking
+- 📝 Quiz and assessment interface
+- 🧑‍🏫 Role-based dashboards (Admin / Instructor / Student)
+- 🔔 Notifications and updates
+- 📱 Fully responsive design
+
+## 📂 Project Structure
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+frontend/
+├── app/ or pages/       # Routing and page structure
+├── components/          # Reusable UI components
+├── services/            # API calls and logic
+├── hooks/               # Custom React hooks
+├── styles/              # Global and component styles
+├── public/              # Static assets
+├── package.json
+└── .gitignore
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ⚙️ Installation & Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Navigate to the frontend directory:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   cd frontend
+   ```
 
-## Learn More
+2. Install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Run the development server:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+4. Open in browser:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   http://localhost:3000
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔗 API Integration
+
+This frontend communicates with the backend API for all operations such as authentication, course management, and user progress tracking.
+
+Make sure the backend server is running and configure the API base URL in your environment file:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api
+```
+
+## 📌 Usage Notes
+
+- Ensure the backend service is running before starting the frontend.
+- Update environment variables for different environments (development/production).
+- Role-based access controls are enforced based on user permissions.
+
+## 🚧 Future Improvements
+
+- Real-time notifications
+- Video streaming optimization
+- Offline learning support
+- Advanced analytics dashboard
+
+## 📄 License
+
+This project is developed for educational and demonstration purposes.
