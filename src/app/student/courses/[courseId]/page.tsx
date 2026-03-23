@@ -6,7 +6,15 @@ import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import { api } from "@/lib/api";
-import { Enrollment, Lesson, LessonWithProgress, Certificate } from "@/types";
+import {
+  Enrollment,
+  Lesson,
+  LessonWithProgress,
+  Certificate,
+  Quiz,
+  Question,
+  QuizAttempt,
+} from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -30,6 +38,10 @@ import {
   Trophy,
   Video,
   Award,
+  Clock,
+  AlertCircle,
+  HelpCircle,
+  XCircle,
 } from "lucide-react";
 
 export default function CourseLearningPage() {
@@ -46,9 +58,102 @@ export default function CourseLearningPage() {
   const [certificateLoading, setCertificateLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
+  // Quiz state
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [loadingQuizzes, setLoadingQuizzes] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<string, string>
+  >({});
+  const [submittingQuiz, setSubmittingQuiz] = useState(false);
+  const [quizAttempt, setQuizAttempt] = useState<QuizAttempt | null>(null);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizAlreadyPassed, setQuizAlreadyPassed] = useState(false);
+
   useEffect(() => {
     fetchEnrollment();
   }, [courseId]);
+
+  // Fetch quizzes when lesson changes
+  useEffect(() => {
+    if (currentLesson) {
+      fetchQuizzesForLesson(currentLesson.id);
+    }
+  }, [currentLesson?.id]);
+
+  const fetchQuizzesForLesson = async (lessonId: string) => {
+    try {
+      setLoadingQuizzes(true);
+      const data = await api.getQuizzes(lessonId);
+      setQuizzes(data);
+      // Reset quiz state when lesson changes
+      setShowQuiz(false);
+      setCurrentQuiz(null);
+      setCurrentQuestionIndex(0);
+      setSelectedAnswers({});
+      setQuizAttempt(null);
+      setQuizCompleted(false);
+      setQuizAlreadyPassed(false);
+    } catch (err) {
+      console.error("Failed to fetch quizzes:", err);
+      setQuizzes([]);
+    } finally {
+      setLoadingQuizzes(false);
+    }
+  };
+
+  const handleStartQuiz = async (quiz: Quiz) => {
+    try {
+      const attempt = await api.startQuizAttempt(quiz.id);
+      setQuizAttempt(attempt);
+      setCurrentQuiz(quiz);
+      setCurrentQuestionIndex(0);
+      setSelectedAnswers({});
+      setQuizCompleted(false);
+      setShowQuiz(true);
+      setQuizAlreadyPassed(false);
+    } catch (err: any) {
+      console.error("Failed to start quiz:", err);
+      if (err.status === 409) {
+        setQuizAlreadyPassed(true);
+      } else {
+        alert("Failed to start quiz. Please try again.");
+      }
+    }
+  };
+
+  const handleSubmitQuiz = async () => {
+    if (!currentQuiz || !quizAttempt) return;
+
+    try {
+      setSubmittingQuiz(true);
+      // Convert selectedAnswers to the format expected by the API
+      const answers = Object.entries(selectedAnswers).map(
+        ([questionId, optionId]) => ({
+          questionId,
+          answer: optionId,
+        }),
+      );
+
+      const result = await api.submitQuizAttempt(quizAttempt.id, answers);
+      setQuizAttempt(result);
+      setQuizCompleted(true);
+    } catch (err) {
+      console.error("Failed to submit quiz:", err);
+      alert("Failed to submit quiz. Please try again.");
+    } finally {
+      setSubmittingQuiz(false);
+    }
+  };
+
+  const handleAnswerSelect = (questionId: string, optionId: string) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [questionId]: optionId,
+    }));
+  };
 
   const fetchEnrollment = async () => {
     try {
@@ -132,7 +237,7 @@ export default function CourseLearningPage() {
     try {
       setDownloading(true);
       const blob = await api.downloadCertificate(certificate.id);
-      
+
       // Create a download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -503,6 +608,233 @@ export default function CourseLearningPage() {
                     </div>
                   )}
 
+                {/* Quiz Section */}
+                {loadingQuizzes ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                    <span className="ml-2 text-slate-600">Loading quiz...</span>
+                  </div>
+                ) : quizzes && quizzes.length > 0 ? (
+                  <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                      <HelpCircle className="w-5 h-5 text-purple-600" />
+                      Lesson Quiz
+                    </h3>
+
+                    {!showQuiz ? (
+                      <div className="text-center py-6">
+                        <div className="bg-purple-50 rounded-lg p-4 mb-4">
+                          <p className="text-purple-900 font-medium">
+                            {quizzes[0].title}
+                          </p>
+                          {quizzes[0].description && (
+                            <p className="text-purple-700 text-sm mt-1">
+                              {quizzes[0].description}
+                            </p>
+                          )}
+                        </div>
+                        {!quizAlreadyPassed ? (
+                          <>
+                            <div className="flex items-center justify-center gap-4 text-sm text-slate-500 mb-4">
+                              {quizzes[0].timeLimit && (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-4 h-4" />
+                                  {quizzes[0].timeLimit} min
+                                </span>
+                              )}
+                              <span>
+                                {quizzes[0].questions?.length || 0} questions
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <CheckCircle className="w-4 h-4" />
+                                {quizzes[0].passingScore}% to pass
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleStartQuiz(quizzes[0])}
+                              className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            >
+                              <HelpCircle className="w-5 h-5" />
+                              Start Quiz
+                            </button>
+                          </>
+                        ) : (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                            <div className="flex items-center justify-center gap-3 mb-2">
+                              <Trophy className="w-8 h-8 text-green-600" />
+                              <span className="text-2xl">🎉</span>
+                            </div>
+                            <h4 className="text-lg font-semibold text-green-800 mb-1">
+                              Quiz Passed!
+                            </h4>
+                            <p className="text-green-700 text-sm">
+                              You have already completed and passed this quiz.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : quizCompleted && quizAttempt ? (
+                      <div className="text-center py-6">
+                        <div
+                          className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+                            quizAttempt.passed ? "bg-green-100" : "bg-red-100"
+                          }`}
+                        >
+                          {quizAttempt.passed ? (
+                            <CheckCircle className="w-8 h-8 text-green-600" />
+                          ) : (
+                            <XCircle className="w-8 h-8 text-red-600" />
+                          )}
+                        </div>
+                        <h4 className="text-xl font-bold text-slate-900 mb-2">
+                          {quizAttempt.passed
+                            ? "Quiz Passed!"
+                            : "Quiz Not Passed"}
+                        </h4>
+                        <p className="text-slate-600 mb-4">
+                          Your Score: {quizAttempt.score?.toFixed(0)}%
+                        </p>
+                        {!quizAttempt.passed && (
+                          <p className="text-sm text-slate-500 mb-4">
+                            You need {currentQuiz?.passingScore}% to pass. You
+                            can try again!
+                          </p>
+                        )}
+                        <button
+                          onClick={() => handleStartQuiz(currentQuiz!)}
+                          className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          {quizAttempt.passed ? "Retake Quiz" : "Try Again"}
+                        </button>
+                      </div>
+                    ) : currentQuiz && currentQuiz.questions ? (
+                      <div>
+                        {/* Question Progress */}
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-sm text-slate-500">
+                            Question {currentQuestionIndex + 1} of{" "}
+                            {currentQuiz.questions.length}
+                          </span>
+                          <span className="text-sm text-slate-500">
+                            {currentQuiz.questions.length -
+                              Object.keys(selectedAnswers).length}{" "}
+                            remaining
+                          </span>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full h-2 bg-slate-100 rounded-full mb-6">
+                          <div
+                            className="h-full bg-purple-600 rounded-full transition-all duration-300"
+                            style={{
+                              width: `${((currentQuestionIndex + 1) / currentQuiz.questions.length) * 100}%`,
+                            }}
+                          />
+                        </div>
+
+                        {/* Question */}
+                        {currentQuiz.questions &&
+                          currentQuiz.questions[currentQuestionIndex] && (
+                            <div className="mb-6">
+                              <h4 className="text-lg font-medium text-slate-900 mb-4">
+                                {
+                                  currentQuiz.questions[currentQuestionIndex]
+                                    .text
+                                }
+                              </h4>
+                              <div className="space-y-3">
+                                {currentQuiz.questions[
+                                  currentQuestionIndex
+                                ].options
+                                  .sort((a, b) => a.order - b.order)
+                                  .map((option) => (
+                                    <button
+                                      key={option.id}
+                                      onClick={() =>
+                                        handleAnswerSelect(
+                                          currentQuiz.questions![
+                                            currentQuestionIndex
+                                          ].id,
+                                          option.id,
+                                        )
+                                      }
+                                      className={`w-full p-4 text-left rounded-lg border-2 transition-colors ${
+                                        selectedAnswers[
+                                          currentQuiz.questions![
+                                            currentQuestionIndex
+                                          ].id
+                                        ] === option.id
+                                          ? "border-purple-600 bg-purple-50"
+                                          : "border-slate-200 hover:border-slate-300"
+                                      }`}
+                                    >
+                                      <span className="text-slate-900">
+                                        {option.text}
+                                      </span>
+                                    </button>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Navigation */}
+                        <div className="flex items-center justify-between">
+                          <button
+                            onClick={() =>
+                              setCurrentQuestionIndex((prev) =>
+                                Math.max(0, prev - 1),
+                              )
+                            }
+                            disabled={currentQuestionIndex === 0}
+                            className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                            Previous
+                          </button>
+
+                          {currentQuestionIndex <
+                          currentQuiz.questions.length - 1 ? (
+                            <button
+                              onClick={() =>
+                                setCurrentQuestionIndex((prev) => prev + 1)
+                              }
+                              className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            >
+                              Next
+                              <ChevronRight className="w-5 h-5" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={handleSubmitQuiz}
+                              disabled={
+                                submittingQuiz ||
+                                Object.keys(selectedAnswers).length !==
+                                  currentQuiz.questions.length
+                              }
+                              className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {submittingQuiz ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <CheckCircle className="w-5 h-5" />
+                              )}
+                              Submit Quiz
+                            </button>
+                          )}
+                        </div>
+
+                        {Object.keys(selectedAnswers).length <
+                          currentQuiz.questions.length && (
+                          <p className="text-sm text-amber-600 mt-4 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            Please answer all questions before submitting
+                          </p>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
                 {/* Navigation and Complete Button */}
                 <div className="flex items-center justify-between">
                   <div>
@@ -518,11 +850,37 @@ export default function CourseLearningPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
+                    {/* Show "Take Quiz" button if quiz exists and lesson not completed */}
+                    {!isLessonCompleted(currentLesson.id) &&
+                      quizzes &&
+                      quizzes.length > 0 &&
+                      !showQuiz && (
+                        <button
+                          onClick={() => handleStartQuiz(quizzes[0])}
+                          className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                          <HelpCircle className="w-5 h-5" />
+                          Take Quiz
+                        </button>
+                      )}
+
+                    {/* Show "Complete Lesson" only when quiz is passed or no quiz */}
                     {!isLessonCompleted(currentLesson.id) && (
                       <button
                         onClick={handleCompleteLesson}
-                        disabled={completing}
+                        disabled={
+                          completing ||
+                          (quizzes &&
+                            quizzes.length > 0 &&
+                            !quizCompleted &&
+                            !quizAttempt?.passed)
+                        }
                         className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={
+                          quizzes && quizzes.length > 0 && !quizCompleted
+                            ? "Please complete the quiz first"
+                            : ""
+                        }
                       >
                         {completing ? (
                           <Loader2 className="w-5 h-5 animate-spin" />
@@ -550,8 +908,8 @@ export default function CourseLearningPage() {
                           >
                             Back to My Courses
                           </Link>
-                          {isCourseCompleted && (
-                            certificate ? (
+                          {isCourseCompleted &&
+                            (certificate ? (
                               <button
                                 onClick={handleDownloadCertificate}
                                 disabled={downloading}
@@ -577,8 +935,7 @@ export default function CourseLearningPage() {
                                 )}
                                 Get Certificate
                               </button>
-                            )
-                          )}
+                            ))}
                         </div>
                       )}
                   </div>

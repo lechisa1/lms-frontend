@@ -137,7 +137,7 @@ export default function CourseDetailPage() {
     e.preventDefault();
     try {
       if (editingLesson) {
-        await api.updateLesson(editingLesson.id, lessonForm);
+        await api.updateLesson(courseId, editingLesson.id, lessonForm);
       } else {
         await api.createLesson(courseId, lessonForm);
       }
@@ -173,7 +173,7 @@ export default function CourseDetailPage() {
   const handleDeleteLesson = async (lessonId: string) => {
     if (!confirm("Are you sure you want to delete this lesson?")) return;
     try {
-      await api.deleteLesson(lessonId);
+      await api.deleteLesson(courseId, lessonId);
       fetchLessons();
     } catch (err: any) {
       setError(err.message || "Failed to delete lesson");

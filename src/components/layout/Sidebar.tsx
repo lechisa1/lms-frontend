@@ -38,7 +38,7 @@ const instructorLinks = [
   { href: "/instructor/courses", icon: BookOpen, label: "My Courses" },
   { href: "/instructor/students", icon: Users, label: "Students" },
   { href: "/instructor/lessons", icon: FileText, label: "Lessons" },
-  { href: "/instructor/quizzes", icon: ClipboardList, label: "Quizzes" },
+  // { href: "/instructor/quizzes", icon: ClipboardList, label: "Quizzes" },
 ];
 
 const studentLinks = [

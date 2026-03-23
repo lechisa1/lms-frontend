@@ -11,6 +11,7 @@ import {
   Certificate,
   Quiz,
   QuizAttempt,
+  Question,
   DashboardStats,
   PaginatedResponse,
   Resource,
@@ -136,9 +137,11 @@ class ApiService {
       const error = await response
         .json()
         .catch(() => ({ message: "An error occurred" }));
-      throw new Error(
+      const errorObj = new Error(
         error.message || `HTTP error! status: ${response.status}`,
       );
+      (errorObj as any).status = response.status;
+      throw errorObj;
     }
     return response.json();
   }
@@ -303,10 +306,13 @@ class ApiService {
     return this.handleResponse<Lesson[]>(response);
   }
 
-  async getLesson(id: string): Promise<Lesson> {
-    const response = await fetch(`${API_BASE_URL}/lessons/${id}`, {
-      headers: this.getHeaders(),
-    });
+  async getLesson(courseId: string, id: string): Promise<Lesson> {
+    const response = await fetch(
+      `${API_BASE_URL}/courses/${courseId}/lessons/${id}`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
     return this.handleResponse<Lesson>(response);
   }
 
@@ -322,20 +328,30 @@ class ApiService {
     return this.handleResponse<Lesson>(response);
   }
 
-  async updateLesson(id: string, data: Partial<Lesson>): Promise<Lesson> {
-    const response = await fetch(`${API_BASE_URL}/lessons/${id}`, {
-      method: "PATCH",
-      headers: this.getHeaders(),
-      body: JSON.stringify(data),
-    });
+  async updateLesson(
+    courseId: string,
+    id: string,
+    data: Partial<Lesson>,
+  ): Promise<Lesson> {
+    const response = await fetch(
+      `${API_BASE_URL}/courses/${courseId}/lessons/${id}`,
+      {
+        method: "PATCH",
+        headers: this.getHeaders(),
+        body: JSON.stringify(data),
+      },
+    );
     return this.handleResponse<Lesson>(response);
   }
 
-  async deleteLesson(id: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/lessons/${id}`, {
-      method: "DELETE",
-      headers: this.getHeaders(),
-    });
+  async deleteLesson(courseId: string, id: string): Promise<void> {
+    const response = await fetch(
+      `${API_BASE_URL}/courses/${courseId}/lessons/${id}`,
+      {
+        method: "DELETE",
+        headers: this.getHeaders(),
+      },
+    );
     if (!response.ok) {
       throw new Error("Failed to delete lesson");
     }
@@ -615,9 +631,12 @@ class ApiService {
 
   // Quizzes endpoints
   async getQuizzes(lessonId: string): Promise<Quiz[]> {
-    const response = await fetch(`${API_BASE_URL}/quizzes/lesson/${lessonId}`, {
-      headers: this.getHeaders(),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/lessons/${lessonId}`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
     return this.handleResponse<Quiz[]>(response);
   }
 
@@ -628,16 +647,168 @@ class ApiService {
     return this.handleResponse<Quiz>(response);
   }
 
-  async submitQuizAttempt(
-    quizId: string,
-    answers: Record<string, string[]>,
-  ): Promise<QuizAttempt> {
-    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}/attempt`, {
-      method: "POST",
-      headers: this.getHeaders(),
-      body: JSON.stringify({ answers }),
-    });
+  async startQuizAttempt(quizId: string): Promise<QuizAttempt> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/${quizId}/attempts/start`,
+      {
+        method: "POST",
+        headers: this.getHeaders(),
+      },
+    );
     return this.handleResponse<QuizAttempt>(response);
+  }
+
+  async submitQuizAttempt(
+    attemptId: string,
+    answers: { questionId: string; answer: string }[],
+  ): Promise<QuizAttempt> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/attempts/${attemptId}/submit`,
+      {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify({ answers }),
+      },
+    );
+    return this.handleResponse<QuizAttempt>(response);
+  }
+
+  async getQuizAttemptResult(attemptId: string): Promise<QuizAttempt> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/attempts/${attemptId}/result`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse<QuizAttempt>(response);
+  }
+
+  // Quiz Management (Instructor)
+  async createQuiz(
+    lessonId: string,
+    quizData: {
+      title: string;
+      description?: string;
+      timeLimit?: number;
+      passingScore?: number;
+      maxAttempts?: number;
+    },
+  ): Promise<Quiz> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/lessons/${lessonId}`,
+      {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify(quizData),
+      },
+    );
+    return this.handleResponse<Quiz>(response);
+  }
+
+  async updateQuiz(
+    quizId: string,
+    quizData: {
+      title?: string;
+      description?: string;
+      timeLimit?: number;
+      passingScore?: number;
+      maxAttempts?: number;
+    },
+  ): Promise<Quiz> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}`, {
+      method: "PATCH",
+      headers: this.getHeaders(),
+      body: JSON.stringify(quizData),
+    });
+    return this.handleResponse<Quiz>(response);
+  }
+
+  async deleteQuiz(quizId: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}`, {
+      method: "DELETE",
+      headers: this.getHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to delete quiz");
+    }
+  }
+
+  async addQuestion(
+    quizId: string,
+    questionData: {
+      text: string;
+      type: string;
+      points?: number;
+      order: number;
+      options?: { text: string; isCorrect: boolean; order: number }[];
+      explanation?: string;
+    },
+  ): Promise<Question> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/${quizId}/questions`,
+      {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify(questionData),
+      },
+    );
+    return this.handleResponse<Question>(response);
+  }
+
+  async addQuestionsBulk(
+    quizId: string,
+    questions: {
+      text: string;
+      type: string;
+      points?: number;
+      order: number;
+      options?: { text: string; isCorrect: boolean; order: number }[];
+    }[],
+  ): Promise<Question[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/${quizId}/questions/bulk`,
+      {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify({ questions }),
+      },
+    );
+    return this.handleResponse<Question[]>(response);
+  }
+
+  async updateQuestion(
+    questionId: string,
+    questionData: {
+      text?: string;
+      type?: string;
+      points?: number;
+      order?: number;
+      options?: { text: string; isCorrect: boolean; order: number }[];
+      explanation?: string;
+    },
+  ): Promise<Question> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/questions/${questionId}`,
+      {
+        method: "PATCH",
+        headers: this.getHeaders(),
+        body: JSON.stringify(questionData),
+      },
+    );
+    return this.handleResponse<Question>(response);
+  }
+
+  async deleteQuestion(questionId: string): Promise<void> {
+    const response = await fetch(
+      `${API_BASE_URL}/quizzes/questions/${questionId}`,
+      {
+        method: "DELETE",
+        headers: this.getHeaders(),
+      },
+    );
+    if (!response.ok) {
+      throw new Error("Failed to delete question");
+    }
   }
 
   // Certificates endpoints
@@ -794,6 +965,39 @@ class ApiService {
       headers: this.getHeaders(),
     });
     return this.handleResponse<DashboardStats>(response);
+  }
+
+  // Instructor Dashboard
+  async getInstructorStats(): Promise<{
+    totalCourses: number;
+    publishedCourses: number;
+    totalStudents: number;
+    avgRating: number;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/dashboard/instructor/stats`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getInstructorCourses(): Promise<any[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/dashboard/instructor/courses`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse(response);
+  }
+
+  async getInstructorRecentStudents(): Promise<any[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/dashboard/instructor/recent-students`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse(response);
   }
 
   // Search

@@ -87,6 +87,7 @@ export interface Quiz {
   maxAttempts: number;
   lessonId: string;
   questionsCount?: number;
+  questions?: Question[];
   createdAt: string;
 }
 
@@ -96,6 +97,7 @@ export interface Question {
   type: string;
   points: number;
   order: number;
+  explanation?: string;
   options: QuestionOption[];
 }
 
