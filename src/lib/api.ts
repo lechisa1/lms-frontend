@@ -1,5 +1,5 @@
 // LMS Frontend - API Service
-import {
+import type {
   AuthResponse,
   LoginDto,
   RegisterDto,
@@ -18,6 +18,8 @@ import {
   RecentEnrollment,
   TopCourse,
   StudentDashboard,
+  Notification,
+  NotificationListResponse,
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -849,6 +851,22 @@ class ApiService {
     return this.handleResponse<Certificate>(response);
   }
 
+  async checkCertificateEligibility(courseId: string): Promise<{
+    eligible: boolean;
+    lessonsCompleted: boolean;
+    quizzesPassed: boolean;
+    enrollmentStatus: string;
+    message: string;
+  }> {
+    const response = await fetch(
+      `${API_BASE_URL}/enrollments/course/${courseId}/eligibility`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse(response);
+  }
+
   async downloadCertificate(id: string): Promise<Blob> {
     const response = await fetch(
       `${API_BASE_URL}/certificates/${id}/download`,
@@ -1000,6 +1018,134 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // ============ ADMIN REPORTS ============
+
+  // Enrollment Report
+  async getEnrollmentReport(days: number = 30): Promise<{
+    summary: {
+      totalEnrollments: number;
+      completedEnrollments: number;
+      activeEnrollments: number;
+      completionRate: number;
+    };
+    trend: Array<{
+      date: string;
+      total: number;
+      completed: number;
+      active: number;
+    }>;
+  }> {
+    const response = await fetch(
+      `${API_BASE_URL}/dashboard/reports/enrollments?days=${days}`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse(response);
+  }
+
+  // Course Report
+  async getCourseReport(): Promise<{
+    summary: {
+      totalCourses: number;
+      totalStudents: number;
+      totalCompletions: number;
+      avgCompletionRate: number;
+    };
+    courses: Array<{
+      id: string;
+      title: string;
+      instructor: string;
+      category: string;
+      totalStudents: number;
+      completedStudents: number;
+      activeStudents: number;
+      completionRate: number;
+      avgProgress: number;
+      rating: number;
+    }>;
+  }> {
+    const response = await fetch(`${API_BASE_URL}/dashboard/reports/courses`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // User Report
+  async getUserReport(days: number = 30): Promise<{
+    summary: {
+      totalUsers: number;
+      totalStudents: number;
+      totalInstructors: number;
+      totalAdmins: number;
+      newUsers: number;
+      activeUsers: number;
+    };
+    trend: Array<{
+      date: string;
+      students: number;
+      instructors: number;
+      admins: number;
+      total: number;
+    }>;
+  }> {
+    const response = await fetch(
+      `${API_BASE_URL}/dashboard/reports/users?days=${days}`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse(response);
+  }
+
+  // Certificate Report
+  async getCertificateReport(days: number = 30): Promise<{
+    summary: {
+      totalCertificates: number;
+      certificatesIssued: number;
+      certificatesThisMonth: number;
+    };
+    trend: Array<{
+      date: string;
+      count: number;
+    }>;
+    topCourses: Array<{
+      courseId: string;
+      courseTitle: string;
+      certificateCount: number;
+    }>;
+  }> {
+    const response = await fetch(
+      `${API_BASE_URL}/dashboard/reports/certificates?days=${days}`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse(response);
+  }
+
+  // Revenue Report
+  async getRevenueReport(days: number = 30): Promise<{
+    summary: {
+      totalRevenue: number;
+      allTimeRevenue: number;
+      totalEnrollments: number;
+      avgRevenuePerEnrollment: number;
+    };
+    trend: Array<{
+      date: string;
+      revenue: number;
+    }>;
+  }> {
+    const response = await fetch(
+      `${API_BASE_URL}/dashboard/reports/revenue?days=${days}`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse(response);
+  }
+
   // Search
   async search(
     query: string,
@@ -1042,6 +1188,59 @@ class ApiService {
       headers: this.getHeaders(),
     });
     return this.handleResponse<StudentDashboard>(response);
+  }
+
+  // Notifications
+  async getNotifications(
+    page = 1,
+    limit = 20,
+    isRead?: boolean,
+  ): Promise<NotificationListResponse> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (isRead !== undefined) {
+      params.append("isRead", isRead.toString());
+    }
+    const response = await fetch(
+      `${API_BASE_URL}/notifications?${params.toString()}`,
+      {
+        headers: this.getHeaders(),
+      },
+    );
+    return this.handleResponse<NotificationListResponse>(response);
+  }
+
+  async getUnreadCount(): Promise<{ count: number }> {
+    const response = await fetch(`${API_BASE_URL}/notifications/unread-count`, {
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<{ count: number }>(response);
+  }
+
+  async markNotificationAsRead(id: string): Promise<Notification> {
+    const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+      method: "POST",
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<Notification>(response);
+  }
+
+  async markAllNotificationsAsRead(): Promise<{ count: number }> {
+    const response = await fetch(`${API_BASE_URL}/notifications/read-all`, {
+      method: "POST",
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<{ count: number }>(response);
+  }
+
+  async deleteNotification(id: string): Promise<{ success: boolean }> {
+    const response = await fetch(`${API_BASE_URL}/notifications/${id}`, {
+      method: "DELETE",
+      headers: this.getHeaders(),
+    });
+    return this.handleResponse<{ success: boolean }>(response);
   }
 }
 

@@ -300,3 +300,21 @@ export interface StudentDashboard {
   certificates: StudentCertificate[];
   weeklyActivity?: WeeklyActivity;
 }
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata: Record<string, any> | null;
+  createdAt: string;
+  readAt: string | null;
+}
+
+export interface NotificationListResponse {
+  notifications: Notification[];
+  total: number;
+  unreadCount: number;
+}

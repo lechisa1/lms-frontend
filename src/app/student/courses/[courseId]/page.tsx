@@ -57,6 +57,13 @@ export default function CourseLearningPage() {
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [certificateLoading, setCertificateLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [eligibility, setEligibility] = useState<{
+    eligible: boolean;
+    lessonsCompleted: boolean;
+    quizzesPassed: boolean;
+    message: string;
+  } | null>(null);
+  const [checkingEligibility, setCheckingEligibility] = useState(false);
 
   // Quiz state
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -188,10 +195,25 @@ export default function CourseLearningPage() {
           console.error("Failed to fetch certificates:", err);
         }
       }
+
+      // Check certificate eligibility
+      checkEligibility();
     } catch (err) {
       console.error("Failed to fetch enrollment:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkEligibility = async () => {
+    try {
+      setCheckingEligibility(true);
+      const data = await api.checkCertificateEligibility(courseId);
+      setEligibility(data);
+    } catch (err) {
+      console.error("Failed to check eligibility:", err);
+    } finally {
+      setCheckingEligibility(false);
     }
   };
 
@@ -223,9 +245,10 @@ export default function CourseLearningPage() {
       setCertificateLoading(true);
       const cert = await api.generateCertificate(courseId);
       setCertificate(cert);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to generate certificate:", err);
-      alert("Failed to generate certificate. Please try again.");
+      const errorMessage = err?.response?.data?.message || "Failed to generate certificate. Please try again.";
+      alert(errorMessage);
     } finally {
       setCertificateLoading(false);
     }
@@ -396,7 +419,7 @@ export default function CourseLearningPage() {
                       )}
                       Download Certificate
                     </button>
-                  ) : (
+                  ) : eligibility?.eligible ? (
                     <button
                       onClick={handleGenerateCertificate}
                       disabled={certificateLoading}
@@ -409,6 +432,15 @@ export default function CourseLearningPage() {
                       )}
                       Get Certificate
                     </button>
+                  ) : (
+                    <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-lg">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-sm">
+                        {!eligibility?.lessonsCompleted
+                          ? "Complete all lessons"
+                          : "Pass all quizzes"}
+                      </span>
+                    </div>
                   )}
                 </>
               )}
@@ -501,7 +533,7 @@ export default function CourseLearningPage() {
                 <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
                   {currentLesson.content ? (
                     <div
-                      className="prose prose-slate max-w-none"
+                      className="prose prose-slate max-w-none text-black"
                       dangerouslySetInnerHTML={{
                         __html: currentLesson.content,
                       }}
@@ -922,7 +954,7 @@ export default function CourseLearningPage() {
                                 )}
                                 Download Certificate
                               </button>
-                            ) : (
+                            ) : eligibility?.eligible ? (
                               <button
                                 onClick={handleGenerateCertificate}
                                 disabled={certificateLoading}
@@ -935,6 +967,15 @@ export default function CourseLearningPage() {
                                 )}
                                 Get Certificate
                               </button>
+                            ) : (
+                              <div className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-500 rounded-lg">
+                                <AlertCircle className="w-5 h-5" />
+                                <span>
+                                  {!eligibility?.lessonsCompleted
+                                    ? "Complete all lessons to get certificate"
+                                    : "Pass all quizzes to get certificate"}
+                                </span>
+                              </div>
                             ))}
                         </div>
                       )}
